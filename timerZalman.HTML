@@ -1,0 +1,107 @@
+<script>
+        // --- Shared Helper Function ---
+        const formatTime = (time) => String(time).padStart(2, '0');
+
+        // --- Constants for time calculation ---
+        const MS_IN_SECOND = 1000;
+        const MS_IN_MINUTE = MS_IN_SECOND * 60;
+        const MS_IN_HOUR = MS_IN_MINUTE * 60;
+        const MS_IN_DAY = MS_IN_HOUR * 24;
+
+        // --- Main Live Countdown Clock ---
+        const countdownDate = new Date("2025-10-15T00:00:00").getTime();
+
+        // Function to update the main countdown display
+        function updateMainCountdown() {
+            const nowLive = new Date().getTime();
+            let distance = countdownDate - nowLive;
+
+            if (distance < 0) {
+                clearInterval(interval);
+                document.getElementById("countdown-timer").style.display = "none";
+                const finishedMessage = document.getElementById("countdown-finished-message");
+                finishedMessage.innerHTML = "The Day is Here!";
+                finishedMessage.classList.remove("hidden");
+                return;
+            }
+
+            // Correct calculation for days, hours, minutes, seconds (Live Timer)
+            const days = Math.floor(distance / MS_IN_DAY);
+            distance %= MS_IN_DAY; // Remaining time less than a day
+            
+            const hours = Math.floor(distance / MS_IN_HOUR);
+            distance %= MS_IN_HOUR; // Remaining time less than an hour
+            
+            const minutes = Math.floor(distance / MS_IN_MINUTE);
+            distance %= MS_IN_MINUTE; // Remaining time less than a minute
+            
+            const seconds = Math.floor(distance / MS_IN_SECOND);
+
+            document.getElementById("days").innerHTML = formatTime(days);
+            document.getElementById("hours").innerHTML = formatTime(hours);
+            document.getElementById("minutes").innerHTML = formatTime(minutes);
+            document.getElementById("seconds").innerHTML = formatTime(seconds);
+        }
+
+        // Start the actual live interval
+        updateMainCountdown(); // Initial call to show numbers immediately
+        const interval = setInterval(updateMainCountdown, 1000);
+
+
+        // --- Custom Date Duration Calculator ---
+        const calculateBtn = document.getElementById('calculate-btn');
+        const customDateInput = document.getElementById('custom-date-input');
+        const customContainer = document.getElementById('custom-countdown-container');
+        const customTimer = document.getElementById('custom-countdown-timer');
+        const customError = document.getElementById('custom-error-message');
+
+        calculateBtn.addEventListener('click', () => {
+            const selectedDateStr = customDateInput.value;
+            if (!selectedDateStr) {
+                showCustomError("Please select a start date.");
+                return;
+            }
+
+            const selectedDate = new Date(selectedDateStr + "T00:00:00").getTime();
+            
+            if (selectedDate >= countdownDate) {
+                 showCustomError("Start date must be before October 15, 2025.");
+                 return;
+            }
+
+            // Calculate the total fixed duration
+            let distance = countdownDate - selectedDate;
+            
+            // --- CRITICAL FIX FOR CUSTOM CALCULATOR IS HERE ---
+            // Calculate and assign to the variable, then use the remainder for the next unit
+            const days = Math.floor(distance / MS_IN_DAY);
+            distance %= MS_IN_DAY; 
+            
+            const hours = Math.floor(distance / MS_IN_HOUR);
+            distance %= MS_IN_HOUR;
+            
+            const minutes = Math.floor(distance / MS_IN_MINUTE);
+            distance %= MS_IN_MINUTE;
+            
+            const seconds = Math.floor(distance / MS_IN_SECOND);
+            // ----------------------------------------------------
+
+            // Display results
+            document.getElementById("custom-days").innerHTML = formatTime(days);
+            document.getElementById("custom-hours").innerHTML = formatTime(hours);
+            document.getElementById("custom-minutes").innerHTML = formatTime(minutes);
+            document.getElementById("custom-seconds").innerHTML = formatTime(seconds);
+            
+            customError.textContent = "";
+            customError.classList.add('hidden');
+            customContainer.classList.remove('hidden');
+            customTimer.style.display = 'grid'; // Make sure it's visible if it was hidden
+        });
+
+        function showCustomError(message) {
+             customError.textContent = message;
+             customError.classList.remove('hidden');
+             customTimer.style.display = 'none';
+             customContainer.classList.remove('hidden');
+        }
+    </script>
